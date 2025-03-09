@@ -1,7 +1,7 @@
 import { joinVoiceChannel, VoiceConnectionStatus } from "@discordjs/voice";
 import { Client, Events, GatewayIntentBits } from "discord.js";
-import config from "./config.js";
-import { TranscriptionService } from "./transcription.js";
+import config from "./config.ts";
+import { TranscriptionService } from "./transcription.ts";
 
 // Check for required environment variables
 if (!config.DISCORD_TOKEN) {
@@ -19,9 +19,28 @@ const client = new Client({
   intents: [
     GatewayIntentBits.Guilds,
     GatewayIntentBits.GuildMessages,
-    GatewayIntentBits.MessageContent,
+    GatewayIntentBits.MessageContent, // Privileged intent - must be enabled in Developer Portal
     GatewayIntentBits.GuildVoiceStates,
   ],
+});
+
+// Handle privileged intents error
+client.on("error", (error) => {
+  if (error.message.includes("disallowed intents")) {
+    console.error("\n\n===== INTENT ERROR =====");
+    console.error("This bot requires privileged intents to function properly.");
+    console.error("Please enable these intents in the Discord Developer Portal:");
+    console.error("1. Go to https://discord.com/developers/applications");
+    console.error("2. Select your application");
+    console.error("3. Go to the 'Bot' section");
+    console.error("4. Under 'Privileged Gateway Intents', enable:");
+    console.error("   - MESSAGE CONTENT INTENT");
+    console.error("5. Save changes and restart the bot");
+    console.error("========================\n\n");
+    process.exit(1);
+  } else {
+    console.error("Discord client error:", error);
+  }
 });
 
 // Initialize transcription service
@@ -115,5 +134,24 @@ client.on(Events.MessageCreate, async (message) => {
   }
 });
 
-// Log in to Discord
-client.login(config.DISCORD_TOKEN);
+// Log in to Discord with error handling
+try {
+  await client.login(config.DISCORD_TOKEN);
+} catch (error) {
+  if (error.message && error.message.includes("disallowed intents")) {
+    console.error("\n\n===== INTENT ERROR =====");
+    console.error("This bot requires privileged intents to function properly.");
+    console.error("Please enable these intents in the Discord Developer Portal:");
+    console.error("1. Go to https://discord.com/developers/applications");
+    console.error("2. Select your application");
+    console.error("3. Go to the 'Bot' section");
+    console.error("4. Under 'Privileged Gateway Intents', enable:");
+    console.error("   - MESSAGE CONTENT INTENT");
+    console.error("5. Save changes and restart the bot");
+    console.error("========================\n\n");
+    process.exit(1);
+  } else {
+    console.error("Failed to log in to Discord:", error);
+    process.exit(1);
+  }
+}

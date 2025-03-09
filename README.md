@@ -31,6 +31,13 @@ A Discord bot that transcribes voice channel conversations using Google's Gemini
    DISCORD_TOKEN=your_discord_bot_token
    GEMINI_API_KEY=your_gemini_api_key
    ```
+5. Configure Privileged Intents in the Discord Developer Portal:
+   - Go to https://discord.com/developers/applications
+   - Select your bot application
+   - Go to the "Bot" section
+   - Under "Privileged Gateway Intents", enable:
+     - MESSAGE CONTENT INTENT
+   - Save changes
 
 ## Usage
 
