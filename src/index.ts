@@ -137,8 +137,8 @@ client.on(Events.MessageCreate, async (message) => {
 // Log in to Discord with error handling
 try {
   await client.login(config.DISCORD_TOKEN);
-} catch (error) {
-  if (error.message && error.message.includes("disallowed intents")) {
+} catch (error: unknown) {
+  if (error instanceof Error && error.message.includes("disallowed intents")) {
     console.error("\n\n===== INTENT ERROR =====");
     console.error("This bot requires privileged intents to function properly.");
     console.error("Please enable these intents in the Discord Developer Portal:");
