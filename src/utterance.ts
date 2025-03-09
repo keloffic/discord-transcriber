@@ -120,7 +120,9 @@ export class Utterance {
       try {
         // Delete the message instead of showing "No speech detected"
         await this.discordMessage.delete();
-        logger.debug(`Deleted message for user ${this.userId} (no speech detected)`);
+        logger.debug(
+          `Deleted message for user ${this.userId} (no speech detected)`
+        );
       } catch (error) {
         logger.error("Error deleting no-speech message:", error);
       }
@@ -148,12 +150,18 @@ export class Utterance {
   private async updateMessageWithTranscription(transcription: string) {
     if (this.discordMessage) {
       try {
-        if (transcription && transcription !== "No speech detected" && transcription !== "No speech detected.") {
+        if (
+          transcription &&
+          transcription.trim() !== "No speech detected" &&
+          transcription.trim() !== "No speech detected."
+        ) {
           await this.discordMessage.edit(`<@${this.userId}>: ${transcription}`);
         } else {
           // Delete the message instead of showing "No speech detected"
           await this.discordMessage.delete();
-          logger.debug(`Deleted message for user ${this.userId} (empty transcription)`);
+          logger.debug(
+            `Deleted message for user ${this.userId} (empty transcription)`
+          );
         }
       } catch (error) {
         logger.error("Error updating transcription message:", error);
