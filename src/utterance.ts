@@ -148,7 +148,7 @@ export class Utterance {
   private async updateMessageWithTranscription(transcription: string) {
     if (this.discordMessage) {
       try {
-        if (transcription && transcription !== "No speech detected") {
+        if (transcription && transcription !== "No speech detected" && transcription !== "No speech detected.") {
           await this.discordMessage.edit(`<@${this.userId}>: ${transcription}`);
         } else {
           // Delete the message instead of showing "No speech detected"
