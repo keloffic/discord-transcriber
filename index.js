@@ -56,7 +56,7 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
             headers: formData.getHeaders(),
           });
 
-          console.log('✅ Transcripción enviada a n8n:', response.data);
+          console.log('listo', response.data);
         } catch (error) {
           console.error('❌ Error enviando audio a n8n:', error.message);
         }
