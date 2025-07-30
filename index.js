@@ -1,11 +1,12 @@
 require('dotenv').config();
 const { Client, GatewayIntentBits } = require('discord.js');
-const { joinVoiceChannel, getVoiceConnection, createAudioPlayer, createAudioResource, entersState, VoiceConnectionStatus, AudioPlayerStatus } = require('@discordjs/voice');
+const { joinVoiceChannel, entersState, VoiceConnectionStatus } = require('@discordjs/voice');
 process.env.DISCORDJS_OPUS_ENGINE = 'opusscript'; 
 const prism = require('prism-media');
 const fs = require('fs');
 const axios = require('axios');
 const path = require('path');
+const FormData = require('form-data');
 
 const client = new Client({
   intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildVoiceStates]
@@ -22,7 +23,22 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
     const connection = joinVoiceChannel({
       channelId: newState.channelId,
       guildId: newState.guild.id,
-      adapterCreator: newState.guild.voiceAdapterCreator
+      adapterCreator: newState.guild.voiceAdapterCreator,
+      selfDeaf: false,
+      selfMute: false,
+    });
+
+    // 🔒 Mantenemos conexión viva
+    connection.on(VoiceConnectionStatus.Disconnected, async () => {
+      try {
+        await Promise.race([
+          entersState(connection, VoiceConnectionStatus.Signalling, 5_000),
+          entersState(connection, VoiceConnectionStatus.Connecting, 5_000),
+        ]);
+      } catch (error) {
+        console.log('❌ Conexión perdida, destruyendo...');
+        connection.destroy();
+      }
     });
 
     const receiver = connection.receiver;
@@ -33,10 +49,7 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
 
       const filename = path.join(__dirname, `./grabacion-${userId}.pcm`);
       const pcmStream = receiver.subscribe(userId, {
-        end: {
-          behavior: 'silence',
-          duration: 1000,
-        },
+        end: { behavior: 'silence', duration: 1000 },
       });
 
       const out = fs.createWriteStream(filename);
@@ -56,12 +69,12 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
             headers: formData.getHeaders(),
           });
 
-          console.log('listo', response.data);
+          console.log('✅ Enviado a n8n:', response.data);
         } catch (error) {
           console.error('❌ Error enviando audio a n8n:', error.message);
         }
 
-        fs.unlinkSync(filename); // borra el archivo local
+        fs.unlinkSync(filename); // 🧹 Limpiar archivo temporal
       });
     });
   }
