@@ -2,7 +2,6 @@ require('dotenv').config();
 const { Client, GatewayIntentBits } = require('discord.js');
 const { joinVoiceChannel, getVoiceConnection, createAudioPlayer, createAudioResource, entersState, VoiceConnectionStatus, AudioPlayerStatus } = require('@discordjs/voice');
 process.env.DISCORDJS_OPUS_ENGINE = 'opusscript'; 
-const { OpusDecoder } = require('@discordjs/opus');
 const prism = require('prism-media');
 const fs = require('fs');
 const axios = require('axios');
