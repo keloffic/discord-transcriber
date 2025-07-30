@@ -9,10 +9,6 @@ const {
   VoiceConnectionStatus,
   AudioPlayerStatus
 } = require('@discordjs/voice');
-
-process.env.DISCORDJS_OPUS_ENGINE = 'opusscript';
-
-const { OpusDecoder } = require('@discordjs/opus');
 const prism = require('prism-media');
 const fs = require('fs');
 const axios = require('axios');
@@ -23,25 +19,30 @@ const client = new Client({
   intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildVoiceStates]
 });
 
+// ✅ Entrar automáticamente al canal al iniciar
 client.once('ready', async () => {
   console.log(`✅ Bot listo como ${client.user.tag}`);
 
   try {
     const guild = await client.guilds.fetch(process.env.GUILD_ID);
-    const channel = await guild.channels.fetch(process.env.VOICE_CHANNEL_ID);
+    const channel = guild.channels.cache.get(process.env.VOICE_CHANNEL_ID);
 
-    joinVoiceChannel({
-      channelId: channel.id,
-      guildId: guild.id,
-      adapterCreator: guild.voiceAdapterCreator,
-    });
-
-    console.log('🔊 Bot unido automáticamente al canal de voz');
-  } catch (error) {
-    console.error('❌ Error al unirse automáticamente al canal de voz:', error);
+    if (channel && channel.isVoiceBased()) {
+      joinVoiceChannel({
+        channelId: channel.id,
+        guildId: guild.id,
+        adapterCreator: guild.voiceAdapterCreator
+      });
+      console.log("🔊 Bot se unió automáticamente al canal de voz.");
+    } else {
+      console.error("❌ No se encontró el canal de voz o no es de voz.");
+    }
+  } catch (err) {
+    console.error("❌ Error al intentar unirse al canal:", err);
   }
 });
 
+// ✅ Detectar cuando alguien habla y grabar
 client.on('voiceStateUpdate', async (oldState, newState) => {
   if (newState.channelId && newState.channelId !== oldState.channelId) {
     console.log(`🎤 ${newState.member.user.username} entró al canal de voz: ${newState.channel.name}`);
@@ -88,10 +89,11 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
           console.error('❌ Error enviando audio a n8n:', error.message);
         }
 
-        fs.unlinkSync(filename); // borra el archivo local
+        fs.unlinkSync(filename); // eliminar archivo temporal
       });
     });
   }
 });
 
+// ✅ Iniciar el bot
 client.login(process.env.DISCORD_TOKEN);
