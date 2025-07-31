@@ -1,6 +1,6 @@
 const { Client, GatewayIntentBits, Partials } = require("discord.js");
 const axios = require("axios");
-require("dotenv").config(); // Si estás en Railway, no es obligatorio, pero útil localmente
+require("dotenv").config(); // Útil localmente, no obligatorio en Railway
 
 const client = new Client({
   intents: [
@@ -11,28 +11,30 @@ const client = new Client({
   partials: [Partials.Message, Partials.Channel]
 });
 
-// Variables de entorno (usa Railway o GitHub Secrets)
+// Variables de entorno
 const DISCORD_TOKEN = process.env.DISCORD_TOKEN;
-const N8N_WEBHOOK_URL = process.env.N8N_WEBHOOK_URL; // Tu webhook de n8n
+const N8N_WEBHOOK_URL = process.env.N8N_WEBHOOK_URL;
 
 // Mensaje de inicio
 client.once("ready", () => {
   console.log(`✅ Bot conectado como ${client.user.tag}`);
 });
 
-// Detectar notas de voz o archivos adjuntos
+// Detectar mensajes con archivos de audio
 client.on("messageCreate", async (message) => {
   // Ignorar mensajes del bot
   if (message.author.bot) return;
 
-  // Verificar si tiene adjunto de tipo audio
+  // Verificar si tiene adjuntos de tipo audio
   if (message.attachments.size > 0) {
     const audioAttachment = message.attachments.find(att => att.contentType && att.contentType.startsWith("audio"));
 
     if (audioAttachment) {
       console.log(`🎙️ Nota de voz detectada: ${audioAttachment.url}`);
 
-      // Enviar a n8n
+      // Mostrar la URL que se está usando para enviar a n8n
+      console.log("🧪 URL que estoy usando para enviar a n8n:", N8N_WEBHOOK_URL);
+
       try {
         await axios.post(N8N_WEBHOOK_URL, {
           username: message.author.username,
@@ -48,5 +50,5 @@ client.on("messageCreate", async (message) => {
   }
 });
 
-// Login con el token de Discord
+// Iniciar sesión con el token de Discord
 client.login(DISCORD_TOKEN);
