@@ -13,7 +13,7 @@ const client = new Client({
 
 // VARIABLES
 const DISCORD_TOKEN = process.env.DISCORD_TOKEN;
-let N8N_WEBHOOK_URL = "https://webhook.site/fd17b3cf-e9f2-48bd-8f41-800a3bd5a223";
+let N8N_WEBHOOK_URL = "https://n8n.srv920570.hstgr.cloud/webhook/discord-audio";
 
 // LIMPIEZA COMPLETA de URL (quita \n, \r, espacios)
 N8N_WEBHOOK_URL = N8N_WEBHOOK_URL.replace(/[\n\r\s]/g, "");
