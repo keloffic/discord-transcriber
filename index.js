@@ -44,10 +44,14 @@ client.on("messageCreate", async (message) => {
 
       try {
         await axios.post(N8N_WEBHOOK_URL, {
-          username: message.author.username,
-          audio_url: audioAttachment.url,
-          channel: message.channel.name,
-        });
+  username: message.author.username,
+  audio_url: audioAttachment.url,
+  channel: message.channel.name
+}, {
+  headers: {
+    'Content-Type': 'application/json'
+  }
+});
         message.reply("📝 Recibí tu nota de voz. Procesando...");
       } catch (error) {
         console.error("❌ Error al enviar a n8n:", error.message);
