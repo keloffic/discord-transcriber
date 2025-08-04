@@ -13,17 +13,9 @@ const client = new Client({
 
 // VARIABLES
 const DISCORD_TOKEN = process.env.DISCORD_TOKEN;
-let N8N_WEBHOOK_URL = "https://n8n.srv920570.hstgr.cloud/webhook/discord-audio";
 
-// LIMPIEZA COMPLETA de URL (quita \n, \r, espacios)
-N8N_WEBHOOK_URL = N8N_WEBHOOK_URL.replace(/[\n\r\s]/g, "");
-
-// DEBUG AVANZADO: imprimir caracteres individuales
-console.log("🧪 URL inspeccionada:");
-[...N8N_WEBHOOK_URL].forEach((char, i) => {
-  console.log(`Posición ${i}: '${char}' - Código ASCII: ${char.charCodeAt(0)}`);
-});
-console.log(`🔗 URL final limpia: ${N8N_WEBHOOK_URL}`);
+// URL directa al webhook de producción en Railway (modifícala si cambia en el futuro)
+const N8N_WEBHOOK_URL = "https://n8nkeloffic-production.up.railway.app/webhook/discord-audio";
 
 // CONEXIÓN DEL BOT
 client.once("ready", () => {
@@ -44,14 +36,15 @@ client.on("messageCreate", async (message) => {
 
       try {
         await axios.post(N8N_WEBHOOK_URL, {
-  username: message.author.username,
-  audio_url: audioAttachment.url,
-  channel: message.channel.name
-}, {
-  headers: {
-    'Content-Type': 'application/json'
-  }
-});
+          username: message.author.username,
+          audio_url: audioAttachment.url,
+          channel: message.channel.name
+        }, {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+
         message.reply("📝 Recibí tu nota de voz. Procesando...");
       } catch (error) {
         console.error("❌ Error al enviar a n8n:", error.message);
