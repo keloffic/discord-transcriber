@@ -15,7 +15,7 @@ const client = new Client({
 const DISCORD_TOKEN = process.env.DISCORD_TOKEN;
 
 // URL directa al webhook de producción en Railway (modifícala si cambia en el futuro)
-const N8N_WEBHOOK_URL = "n8nkeloffic-production.up.railway.app/webhook/discord-audio";
+const N8N_WEBHOOK_URL = "https://n8nkeloffic-production.up.railway.app/webhook/discord-audio";
 
 // CONEXIÓN DEL BOT
 client.once("ready", () => {
